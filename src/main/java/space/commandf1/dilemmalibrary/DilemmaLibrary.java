@@ -5,7 +5,7 @@ public class DilemmaLibrary {
 
     public static DilemmaLibrary getInstance() {
         if (instance == null) {
-            instance = new DilemmaLibrary()
+            instance = new DilemmaLibrary();
         }
 
         return instance;
