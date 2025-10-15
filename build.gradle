@@ -11,6 +11,7 @@ repositories {
 
 dependencies {
     implementation 'org.jetbrains:annotations:24.0.0'
+    implementation 'org.yaml:snakeyaml:2.0'
 
     compileOnly 'org.projectlombok:lombok:1.18.36'
     annotationProcessor 'org.projectlombok:lombok:1.18.36'
