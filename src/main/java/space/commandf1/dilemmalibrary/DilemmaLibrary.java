@@ -1,24 +1,22 @@
 package space.commandf1.dilemmalibrary;
 
-import space.commandf1.dilemmalibrary.provider.LoggerProvider;
+import lombok.Getter;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class DilemmaLibrary {
-    private static DilemmaLibrary instance;
-    private LoggerProvider<?> loggerProvider;
+    private static final Map<DilemmaLibraryHandler, DilemmaLibrary> INSTANCES = new ConcurrentHashMap<>();
 
-    public static DilemmaLibrary getInstance() {
-        if (instance == null) {
-            instance = new DilemmaLibrary();
-        }
+    @Getter
+    private final DilemmaLibraryHandler handler;
 
-        return instance;
+    private DilemmaLibrary(DilemmaLibraryHandler handler) {
+        this.handler = handler;
     }
 
-    public LoggerProvider<?> getLoggerProvider() {
-        return loggerProvider;
+    public static DilemmaLibrary getInstance(DilemmaLibraryHandler handler) {
+        return INSTANCES.computeIfAbsent(handler, DilemmaLibrary::new);
     }
 
-    public void setLoggerProvider(LoggerProvider<?> loggerProvider) {
-        this.loggerProvider = loggerProvider;
-    }
 }
