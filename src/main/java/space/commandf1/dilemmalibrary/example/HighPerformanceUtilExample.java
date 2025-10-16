@@ -132,6 +132,8 @@ public class HighPerformanceUtilExample {
             try {
                 System.out.println("阻塞获取锁成功，执行临界区代码");
                 Thread.sleep(50);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
             } finally {
                 lock.unlock();
                 System.out.println("锁已释放");

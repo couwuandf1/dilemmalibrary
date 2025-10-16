@@ -55,8 +55,9 @@ public class DistributedLockUtil {
      * @param lockKey 锁键
      * @param timeout 超时时间（毫秒）
      * @return 是否获取成功
+     * @throws InterruptedException 如果线程在等待锁时被中断
      */
-    public boolean tryLock(@NotNull String lockKey, long timeout) {
+    public boolean tryLock(@NotNull String lockKey, long timeout) throws InterruptedException {
         return getLock(lockKey).tryLock(timeout, TimeUnit.MILLISECONDS);
     }
     
