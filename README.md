@@ -8,6 +8,10 @@ DilemmaLibrary 是一个Java库，提供了通用的处理器接口、日志记�
 - **LoggerProvider**: 统一的日志记录接口，支持多种日志框架（SLF5J、Java Util Logging）
 - **实用工具类**: 包含异常处理和常用工具方法，提高开发效率
 - **ProcessorManager**: 处理器管理器，提供统一的处理器注册和执行机制
+- **高性能缓存**: 多种缓存策略实现，包括LRU、过期缓存和计算缓存
+- **线程工具**: 线程池管理和任务调度功能
+- **事件总线**: 高性能异步事件发布订阅机制
+- **分布式锁**: 可重入分布式锁实现
 
 ## 文档
 
@@ -17,6 +21,9 @@ DilemmaLibrary 是一个Java库，提供了通用的处理器接口、日志记�
 3. [LoggerProvider 日志记录](wiki/LOGGER_PROVIDER.md) - 统一且可扩展的日志记录接口
 4. [通用工具类](wiki/COMMON_UTILS.md) - ExceptionUtil和CommonUtil工具类的使用方法
 5. [ProcessorManager 处理器管理](wiki/PROCESSER_MANAGER.md) - 处理器注册和管理机制
+6. [线程工具类](wiki/THREAD_UTILS.md) - 线程池管理和任务调度功能
+7. [事件总线工具](wiki/EVENT_BUS_UTIL.md) - 高性能异步事件发布订阅机制
+8. [分布式锁工具](wiki/DISTRIBUTED_LOCK_UTIL.md) - 可重入分布式锁实现
 
 ## 使用方法
 
