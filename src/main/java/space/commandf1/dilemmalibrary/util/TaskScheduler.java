@@ -3,6 +3,7 @@ package space.commandf1.dilemmalibrary.util;
 import space.commandf1.dilemmalibrary.provider.logger.LoggerProvider;
 
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * 高效的任务调度器，提供灵活的任务调度功能
@@ -13,12 +14,18 @@ public class TaskScheduler {
     );
 
     private final ScheduledExecutorService scheduler;
+    private final AtomicLong totalTasks = new AtomicLong(0);
+    private final AtomicLong completedTasks = new AtomicLong(0);
+    private final AtomicLong failedTasks = new AtomicLong(0);
 
     /**
      * 构造函数，创建一个默认的调度器
      */
     public TaskScheduler() {
-        this.scheduler = ThreadUtil.createScheduledThreadPool(Runtime.getRuntime().availableProcessors());
+        // 使用优化的线程池创建方法
+        this.scheduler = ThreadUtil.createScheduledThreadPool(
+            Math.max(Runtime.getRuntime().availableProcessors(), 4)
+        );
     }
 
     /**
@@ -27,7 +34,9 @@ public class TaskScheduler {
      * @param corePoolSize 核心线程数
      */
     public TaskScheduler(int corePoolSize) {
-        this.scheduler = ThreadUtil.createScheduledThreadPool(corePoolSize);
+        this.scheduler = ThreadUtil.createScheduledThreadPool(
+            Math.max(corePoolSize, Runtime.getRuntime().availableProcessors())
+        );
     }
 
     /**
@@ -39,8 +48,21 @@ public class TaskScheduler {
      * @return ScheduledFuture 对象
      */
     public ScheduledFuture<?> schedule(Runnable task, long delay, TimeUnit unit) {
-        LOGGER.info("调度任务将在 " + delay + " " + unit + " 后执行");
-        return ThreadUtil.schedule(scheduler, task, delay, unit);
+        totalTasks.incrementAndGet();
+        LOGGER.debug("调度任务将在 " + delay + " " + unit + " 后执行");
+        
+        // 包装任务以跟踪完成状态
+        Runnable wrappedTask = () -> {
+            try {
+                task.run();
+                completedTasks.incrementAndGet();
+            } catch (Exception e) {
+                failedTasks.incrementAndGet();
+                LOGGER.error("调度任务执行失败", e);
+            }
+        };
+        
+        return ThreadUtil.schedule(scheduler, wrappedTask, delay, unit);
     }
 
     /**
@@ -53,8 +75,21 @@ public class TaskScheduler {
      * @return ScheduledFuture 对象
      */
     public ScheduledFuture<?> scheduleAtFixedRate(Runnable task, long initialDelay, long period, TimeUnit unit) {
-        LOGGER.info("调度任务将以固定频率执行: 初始延迟 " + initialDelay + " " + unit + ", 周期 " + period + " " + unit);
-        return ThreadUtil.scheduleAtFixedRate(scheduler, task, initialDelay, period, unit);
+        totalTasks.incrementAndGet();
+        LOGGER.debug("调度任务将以固定频率执行: 初始延迟 " + initialDelay + " " + unit + ", 周期 " + period + " " + unit);
+        
+        // 包装任务以跟踪完成状态
+        Runnable wrappedTask = () -> {
+            try {
+                task.run();
+                completedTasks.incrementAndGet();
+            } catch (Exception e) {
+                failedTasks.incrementAndGet();
+                LOGGER.error("调度任务执行失败", e);
+            }
+        };
+        
+        return ThreadUtil.scheduleAtFixedRate(scheduler, wrappedTask, initialDelay, period, unit);
     }
 
     /**
@@ -67,8 +102,21 @@ public class TaskScheduler {
      * @return ScheduledFuture 对象
      */
     public ScheduledFuture<?> scheduleWithFixedDelay(Runnable task, long initialDelay, long delay, TimeUnit unit) {
-        LOGGER.info("调度任务将以固定延迟执行: 初始延迟 " + initialDelay + " " + unit + ", 延迟 " + delay + " " + unit);
-        return ThreadUtil.scheduleWithFixedDelay(scheduler, task, initialDelay, delay, unit);
+        totalTasks.incrementAndGet();
+        LOGGER.debug("调度任务将以固定延迟执行: 初始延迟 " + initialDelay + " " + unit + ", 延迟 " + delay + " " + unit);
+        
+        // 包装任务以跟踪完成状态
+        Runnable wrappedTask = () -> {
+            try {
+                task.run();
+                completedTasks.incrementAndGet();
+            } catch (Exception e) {
+                failedTasks.incrementAndGet();
+                LOGGER.error("调度任务执行失败", e);
+            }
+        };
+        
+        return ThreadUtil.scheduleWithFixedDelay(scheduler, wrappedTask, initialDelay, delay, unit);
     }
 
     /**

@@ -21,11 +21,16 @@ public class ThreadUtil {
      * @return ExecutorService 线程池实例
      */
     public static ExecutorService createFixedThreadPool(int size) {
+        // 根据 CPU 核心数和任务类型计算最优线程数
+        // 对于计算密集型任务，线程数 = CPU 核心数 + 1
+        // 对于 I/O 密集型任务，线程数 = CPU 核心数 * (1 + 平均等待时间/平均计算时间)
+        int optimalSize = Math.max(size, Runtime.getRuntime().availableProcessors() + 1);
         return new ThreadPoolExecutor(
-                size, size,
-                0L, TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<>(),
-                new CustomThreadFactory("FixedThreadPool")
+                optimalSize, optimalSize,
+                60L, TimeUnit.SECONDS,
+                new LinkedBlockingQueue<>(1000),
+                new CustomThreadFactory("FixedThreadPool"),
+                new ThreadPoolExecutor.CallerRunsPolicy()
         );
     }
 
@@ -36,10 +41,12 @@ public class ThreadUtil {
      */
     public static ExecutorService createCachedThreadPool() {
         return new ThreadPoolExecutor(
-                0, Integer.MAX_VALUE,
+                Runtime.getRuntime().availableProcessors(),
+                Integer.MAX_VALUE,
                 60L, TimeUnit.SECONDS,
                 new SynchronousQueue<>(),
-                new CustomThreadFactory("CachedThreadPool")
+                new CustomThreadFactory("CachedThreadPool"),
+                new ThreadPoolExecutor.CallerRunsPolicy()
         );
     }
 
@@ -53,7 +60,8 @@ public class ThreadUtil {
                 1, 1,
                 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<>(),
-                new CustomThreadFactory("SingleThreadExecutor")
+                new CustomThreadFactory("SingleThreadExecutor"),
+                new ThreadPoolExecutor.CallerRunsPolicy()
         );
     }
 
@@ -64,7 +72,12 @@ public class ThreadUtil {
      * @return ScheduledExecutorService 定时任务线程池实例
      */
     public static ScheduledExecutorService createScheduledThreadPool(int corePoolSize) {
-        return new ScheduledThreadPoolExecutor(corePoolSize, new CustomThreadFactory("ScheduledThreadPool"));
+        int optimalSize = Math.max(corePoolSize, Runtime.getRuntime().availableProcessors());
+        return new ScheduledThreadPoolExecutor(
+                optimalSize,
+                new CustomThreadFactory("ScheduledThreadPool"),
+                new ThreadPoolExecutor.CallerRunsPolicy()
+        );
     }
 
     /**
@@ -75,10 +88,12 @@ public class ThreadUtil {
      * @return ExecutorService 线程池实例
      */
     public static ExecutorService createOptimizedFixedThreadPool(int size, int queueSize) {
+        // 根据 CPU 核心数和任务类型计算最优线程数
+        int optimalSize = Math.max(size, Runtime.getRuntime().availableProcessors() * 2);
         return new ThreadPoolExecutor(
-                size, size,
-                0L, TimeUnit.MILLISECONDS,
-                new ArrayBlockingQueue<>(queueSize),
+                optimalSize, optimalSize,
+                60L, TimeUnit.SECONDS,
+                new ArrayBlockingQueue<>(queueSize > 0 ? queueSize : 1000),
                 new CustomThreadFactory("OptimizedFixedThreadPool"),
                 new ThreadPoolExecutor.CallerRunsPolicy()
         );
@@ -91,8 +106,27 @@ public class ThreadUtil {
      */
     public static void shutdown(ExecutorService executor) {
         if (executor != null && !executor.isShutdown()) {
-            executor.shutdown();
-            LOGGER.info("线程池已关闭");
+            try {
+                // 先尝试优雅关闭
+                executor.shutdown();
+                // 等待最多60秒让现有任务执行完毕
+                if (!executor.awaitTermination(60, TimeUnit.SECONDS)) {
+                    // 超时则强制关闭
+                    executor.shutdownNow();
+                    // 再等待60秒确保关闭
+                    if (!executor.awaitTermination(60, TimeUnit.SECONDS)) {
+                        LOGGER.error("线程池未能成功关闭");
+                    } else {
+                        LOGGER.info("线程池已强制关闭");
+                    }
+                } else {
+                    LOGGER.info("线程池已优雅关闭");
+                }
+            } catch (InterruptedException e) {
+                executor.shutdownNow();
+                Thread.currentThread().interrupt();
+                LOGGER.error("线程池关闭过程中被中断", e);
+            }
         }
     }
 
@@ -103,8 +137,18 @@ public class ThreadUtil {
      */
     public static void shutdownNow(ExecutorService executor) {
         if (executor != null && !executor.isShutdown()) {
-            executor.shutdownNow();
-            LOGGER.info("线程池已立即关闭");
+            try {
+                // 立即关闭并等待最多60秒
+                executor.shutdownNow();
+                if (!executor.awaitTermination(60, TimeUnit.SECONDS)) {
+                    LOGGER.error("线程池未能成功立即关闭");
+                } else {
+                    LOGGER.info("线程池已立即关闭");
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                LOGGER.error("线程池立即关闭过程中被中断", e);
+            }
         }
     }
 
