@@ -45,8 +45,20 @@ if (config != null) {
 
 ```java
 // 如果处理器未找到
-// 日志输出: "Processer not found: " + name
+// 日志输出: "[ERROR] Processer not found: " + name
 
 // 如果处理器执行出错
-// 日志输出: "Error executing processer " + name + ": " + e.getMessage()
+// 日志输出: "[ERROR] Error executing processer " + name, throwable
+```
+
+### 日志记录
+
+`ProcesserManager` 还会在执行过程中记录调试信息：
+
+```java
+// 开始执行处理器时
+// 日志输出: "[DEBUG] Executing processer: " + name
+
+// 处理器执行成功时
+// 日志输出: "[DEBUG] Processer executed successfully: " + name
 ```

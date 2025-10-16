@@ -42,14 +42,17 @@ public class ProcesserManager {
     public <T, R> R executeProcesser(@NotNull String name, @NotNull T input, @NotNull LoggerProvider<?> loggerProvider) {
         Processer<T, R> processer = (Processer<T, R>) this.getProcesser(name);
         if (processer == null) {
-            loggerProvider.log("Processer not found: " + name);
+            loggerProvider.error("Processer not found: " + name);
             return null;
         }
 
         try {
-            return processer.process(input);
+            loggerProvider.debug("Executing processer: " + name);
+            R result = processer.process(input);
+            loggerProvider.debug("Processer executed successfully: " + name);
+            return result;
         } catch (Exception e) {
-            loggerProvider.log("Error executing processer " + name + ": " + e.getMessage());
+            loggerProvider.error("Error executing processer " + name, e);
             return null;
         }
     }

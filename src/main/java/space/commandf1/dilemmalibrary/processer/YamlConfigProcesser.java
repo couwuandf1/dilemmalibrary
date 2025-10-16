@@ -21,12 +21,15 @@ public class YamlConfigProcesser<T> extends AbstractProcesser<InputStream, T> {
 
     @Override
     public @Nullable T process(@NotNull InputStream input) throws Exception {
+        this.loggerProvider.debug("Processing YAML config for class: " + this.clazz.getSimpleName());
         try {
             LoaderOptions options = new LoaderOptions();
             Yaml yaml = new Yaml(new CustomClassLoaderConstructor(this.clazz, this.clazz.getClassLoader(), options));
-            return yaml.loadAs(input, this.clazz);
+            T result = yaml.loadAs(input, this.clazz);
+            this.loggerProvider.debug("YAML config processed successfully for class: " + this.clazz.getSimpleName());
+            return result;
         } catch (Exception e) {
-            this.loggerProvider.log("Failed to process YAML config: " + e.getMessage());
+            this.loggerProvider.error("Failed to process YAML config for class: " + this.clazz.getSimpleName(), e);
             throw e;
         }
     }
