@@ -5,9 +5,7 @@ plugins {
 group = 'space.commandf1'
 version = '1.0-SNAPSHOT'
 
-repositories {
-    mavenCentral()
-}
+
 
 dependencies {
     implementation 'org.jetbrains:annotations:24.0.0'
@@ -28,6 +26,8 @@ dependencies {
     testImplementation 'org.slf4j:slf4j-api:2.0.17'
     testImplementation 'org.slf4j:slf4j-simple:2.0.17'
 }
+
+
 
 def targetJavaVersion = 21
 java {
@@ -113,3 +113,4 @@ task testReport(type: Test) {
         exceptionFormat "full"
     }
 }
+
