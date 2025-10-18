@@ -33,6 +33,8 @@ public abstract class AbstractProcesser<T, R> implements Processer<T, R> {
 
 ## 使用示例
 
+### 1. 自定义处理器
+
 ```java
 // 创建自定义处理器
 public class MyProcessor extends AbstractProcesser<String, Integer> {
@@ -50,4 +52,33 @@ public class MyProcessor extends AbstractProcesser<String, Integer> {
 // 使用处理器
 Processer<String, Integer> processor = new MyProcessor();
 Integer result = processor.process("Hello World");
+```
+
+### 2. ConfigManager配置管理器
+
+```java
+// 定义配置类
+@Data
+public class AppConfig {
+    private String appName;
+    private int port;
+    private boolean debug;
+}
+
+// 创建配置管理器
+ConfigManager<AppConfig> configManager = new ConfigManager<>(AppConfig.class, "app.yaml");
+
+// 添加配置验证器
+configManager.addConfigValidator("portValidator", config -> config.getPort() > 0 && config.getPort() < 65536);
+
+// 添加配置变更监听器
+configManager.addConfigChangeListener("configLogger", config -> 
+    System.out.println("配置已变更: " + config.getAppName() + " on port " + config.getPort())
+);
+
+// 加载配置
+String yamlConfig = "appName: MyApp\nport: 8080\ndebug: true\n";
+AppConfig config = configManager.process(
+    new ByteArrayInputStream(yamlConfig.getBytes(StandardCharsets.UTF_8))
+);
 ```

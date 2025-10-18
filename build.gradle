@@ -102,7 +102,7 @@ test {
 // 自定义任务：运行示例
 task runExample(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
-    mainClass = 'space.commandf1.dilemmalibrary.example.LoggerProviderExample'
+    mainClass = 'space.commandf1.dilemmalibrary.example.ConfigManagerExample'
 }
 
 // 自定义任务：运行所有测试并生成报告

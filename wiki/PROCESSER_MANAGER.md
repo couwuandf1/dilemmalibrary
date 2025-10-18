@@ -20,6 +20,8 @@ public class ProcesserManager {
 
 ### 使用示例
 
+#### 1. 基本使用
+
 ```java
 // 创建处理器管理器
 ProcesserManager manager = new ProcesserManager();
@@ -36,6 +38,31 @@ if (config != null) {
     // 处理配置
 } else {
     // 处理错误
+}
+```
+
+#### 2. ConfigManager使用
+
+```java
+// 创建配置管理器
+ConfigManager<AppConfig> configManager = new ConfigManager<>(AppConfig.class, "app.yaml");
+
+// 注册到处理器管理器
+manager.registerProcesser(configManager);
+
+// 执行配置加载
+String yamlConfig = "appName: MyApp\nport: 8080\ndebug: true\n";
+AppConfig config = manager.executeProcesser(
+    "ConfigManager-app.yaml", 
+    new ByteArrayInputStream(yamlConfig.getBytes(StandardCharsets.UTF_8)), 
+    loggerProvider
+);
+
+// 检查结果
+if (config != null) {
+    System.out.println("配置加载成功: " + config.getAppName());
+} else {
+    System.out.println("配置加载失败");
 }
 ```
 
