@@ -29,13 +29,33 @@ dependencies {
     testImplementation 'org.slf4j:slf4j-simple:2.0.17'
 }
 
-def targetJavaVersion = 17
+def targetJavaVersion = 21
 java {
     def javaVersion = JavaVersion.toVersion(targetJavaVersion)
     sourceCompatibility = javaVersion
     targetCompatibility = javaVersion
     if (JavaVersion.current() < javaVersion) {
         toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
+    }
+    
+    // 配置源集
+    sourceSets {
+        main {
+            java {
+                srcDirs = ['src/main/java']
+            }
+            resources {
+                srcDirs = ['src/main/resources']
+            }
+        }
+        test {
+            java {
+                srcDirs = ['src/test/java']
+            }
+            resources {
+                srcDirs = ['src/test/resources']
+            }
+        }
     }
 }
 
@@ -68,4 +88,28 @@ tasks.register('javadocJar', Jar) {
 
 artifacts {
     archives javadocJar
+}
+
+// 测试任务配置
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+        exceptionFormat "full"
+    }
+}
+
+// 自定义任务：运行示例
+task runExample(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'space.commandf1.dilemmalibrary.example.LoggerProviderExample'
+}
+
+// 自定义任务：运行所有测试并生成报告
+task testReport(type: Test) {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed", "standardOut", "standardError"
+        exceptionFormat "full"
+    }
 }

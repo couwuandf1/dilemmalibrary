@@ -11,7 +11,11 @@ public class StringUtil {
      * @return 如果字符串为null、空或仅包含空白字符则返回true，否则返回false
      */
     public static boolean isBlank(@NotNull String str) {
-        return str == null || str.trim().isEmpty();
+        return
+
+
+
+                str == null || str.trim().isEmpty();
     }
 
     /**

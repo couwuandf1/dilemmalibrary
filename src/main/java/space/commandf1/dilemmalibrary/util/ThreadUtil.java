@@ -105,16 +105,27 @@ public class ThreadUtil {
      * @param executor 线程池实例
      */
     public static void shutdown(ExecutorService executor) {
+        shutdown(executor, 60, TimeUnit.SECONDS);
+    }
+
+    /**
+     * 关闭线程池（可指定超时时间）
+     *
+     * @param executor 线程池实例
+     * @param timeout  超时时间
+     * @param unit     时间单位
+     */
+    public static void shutdown(ExecutorService executor, long timeout, TimeUnit unit) {
         if (executor != null && !executor.isShutdown()) {
             try {
                 // 先尝试优雅关闭
                 executor.shutdown();
-                // 等待最多60秒让现有任务执行完毕
-                if (!executor.awaitTermination(60, TimeUnit.SECONDS)) {
+                // 等待指定时间让现有任务执行完毕
+                if (!executor.awaitTermination(timeout, unit)) {
                     // 超时则强制关闭
                     executor.shutdownNow();
-                    // 再等待60秒确保关闭
-                    if (!executor.awaitTermination(60, TimeUnit.SECONDS)) {
+                    // 再等待指定时间确保关闭
+                    if (!executor.awaitTermination(timeout, unit)) {
                         LOGGER.error("线程池未能成功关闭");
                     } else {
                         LOGGER.info("线程池已强制关闭");
