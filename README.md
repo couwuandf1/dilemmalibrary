@@ -2,6 +2,8 @@
 
 DilemmaLibrary 是一个Java库，提供了通用的处理器接口、日志记录功能和实用工具类，帮助开发者构建可扩展的应用程序。该库针对嵌入式系统和高并发场景进行了深度优化，确保在资源受限环境下的低内存占用和高性能表现。
 
+
+[![](https://jitpack.io/v/couwuandf1/dilemmalibrary.svg)](https://jitpack.io/#couwuandf1/dilemmalibrary)
 ## 功能特性
 
 ### 1. Processor处理器系统（高性能数据处理）
